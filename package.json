@@ -1,0 +1,26 @@
+{
+  "name": "notion-automation",
+  "version": "1.0.0",
+  "description": "A Notion automation app.",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alfieyfc/notion-automation.git"
+  },
+  "keywords": [
+    "notion"
+  ],
+  "author": "alfieyfc",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alfieyfc/notion-automation/issues"
+  },
+  "homepage": "https://github.com/alfieyfc/notion-automation#readme",
+  "dependencies": {
+    "@notionhq/client": "^0.2.4",
+    "dotenv": "^10.0.0"
+  }
+}

@@ -8,7 +8,7 @@ FROM node:lts-alpine
 WORKDIR /myapp/
 COPY --from=builder /myapp/node_modules/ /myapp/node_modules/
 COPY index.js /myapp/index.js
-CMD ["node index.js"]
+CMD ["node", "index.js"]
 
 
 

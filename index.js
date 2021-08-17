@@ -33,13 +33,13 @@ function getDue (dueTime) {
     mode_numeric = parseInt(mode)
     // Date of month in current month: integer '1', '2', ..., or '31'
     dt_str = mode_numeric + " " + dueTime
-    // TODO: catch invalid dt_str
+    // TODO: catch invalid dt_str (ex. "33 33:33")
     schedule = moment(dt_str, "DD HH:mm").subtract({ hours: utcoffset }).utcOffset(utcoffset)
   } else {
-    // TODO: catch invalid dueTime
+    // TODO: catch invalid dueTime (ex. "33:33")
     time = moment(dueTime, "HH:mm").subtract({ hours: utcoffset }).utcOffset(utcoffset)
     mode_upper = mode.toUpperCase()
-    //  - Next occuring day of week (including today): 'N', 'M', 'T', 'W', 'R', 'F', 'S'
+    //  - Next occurring day of week (including today): 'N', 'M', 'T', 'W', 'R', 'F', 'S'
     if (mode_upper.substr(0, 3) == 'SUN')
       mode_upper = 'N'
     if (mode_upper.substr(0, 3) == 'THU')

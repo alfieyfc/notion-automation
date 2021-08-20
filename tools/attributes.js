@@ -16,13 +16,25 @@ async function getOwnerIDs (_assignees, _users) {
 }
 
 function getDue (dueTime) {
-  if (!isNaN(mode) && mode !== '') {
-    console.log("Numeric Mode.")
-    mode_numeric = parseInt(mode)
-    // Date of month in current month: integer '1', '2', ..., or '31'
-    dt_str = mode_numeric + " " + dueTime
-    // TODO: catch invalid dt_str (ex. "33 33:33")
-    schedule = moment(dt_str, "DD HH:mm").subtract({ hours: utcoffset }).utcOffset(utcoffset)
+  if (mode === 'Monthly') {
+    // Add tasks for NEXT month
+    target_year = moment().year()
+    target_month = moment().month() + 1 + 1
+    // Check for January
+    if (target_month > 12) {
+      target_year = moment().year() + 1
+      target_month = 1
+    }
+    // Check for Februrary
+    if (target_month === 2) {
+      if (parseInt(dueTime.substr(0, 2)) > 28) {
+        dueTime = "28" + dueTime.substring(2)
+      }
+    }
+
+    // Require dueTime to be in format 'DD, HH:mm'
+    dt_str = target_year + "/" + target_month + "/" + dueTime
+    schedule = moment(dt_str, "YYYY/MM/DD, HH:mm").subtract({ hours: utcoffset }).utcOffset(utcoffset)
   } else {
     // TODO: catch invalid dueTime (ex. "33:33")
     time = moment(dueTime, "HH:mm").subtract({ hours: utcoffset }).utcOffset(utcoffset)
@@ -116,10 +128,13 @@ module.exports = {
         case "people":
           accum.properties[key] = { "people": await getOwnerIDs(value.data, _users) }
           break
+        case "number":
+          accum.properties[key] = { "number": parseInt(value.data) }
+          break;
         default:
-          // console.log(value.type, " is unsupported.")
-          accum.properties[key] = { value, type: typeof value }
-          break
+          console.log(value.type, " is unsupported.")
+          // accum.properties[key] = { value, type: typeof value }
+          break;
       }
       return accum
     }, Promise.resolve({ parent: {}, properties: {} }))

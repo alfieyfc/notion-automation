@@ -106,39 +106,51 @@ function getTags (tag_names) {
   return tags
 }
 
+function getDateToday () {
+  return moment().utcOffset(8).startOf('day').format("YYYY-MM-DD")
+}
+
 module.exports = {
-  generateProperties: async function (_properties_config) {
+  generateProperties: async function (_properties_config, _users) {
     const obj = await Object.entries(_properties_config).reduce(async (accumP, [key, value]) => {
       const accum = await accumP;
       switch (value.type) {
         case "title":
-          // accum.properties[key] = { "title": [{ "text": { "content": value.data } }] }
+          accum.properties[key] = { "title": [{ "text": { "content": value.data } }] }
           break
         case "date":
-          if (value.data)
-            accum.properties[key] = { "date": { "start": getDue(value.data) } }
-          else
+          if (!value.data)
+            accum.properties[key] = { "date": { "start": getDateToday() } }
+          else if (value.data == "empty")
             accum.properties[key] = { "date": null }
+          else {
+            d = moment(value.data)
+            if (d.isValid())
+              accum.properties[key] = { "date": { "start": d } }
+            else {
+              accum.properties[key] = { "date": null }
+              console.log("\nInvalid data for type 'date'...\n")
+            }
+          }
           break
         case "select":
-          // accum.properties[key] = { "select": { "name": value.data } }
+          accum.properties[key] = { "select": { "name": value.data } }
           break
         case "multi_select":
-          // accum.properties[key] = { "multi_select": getTags(value.data) }
+          accum.properties[key] = { "multi_select": getTags(value.data) }
           break
         case "people":
-          // accum.properties[key] = { "people": await getOwnerIDs(value.data, _users) }
+          accum.properties[key] = { "people": await getOwnerIDs(value.data, _users) }
           break
         case "number":
-          // accum.properties[key] = { "number": parseInt(value.data) }
+          accum.properties[key] = { "number": parseInt(value.data) }
           break;
         default:
           console.log(value.type, " is unsupported.")
           break;
       }
       return accum
-    }, Promise.resolve({ parent: {}, properties: {} }))
-
+    }, Promise.resolve({ properties: {} }))
     return obj
   },
   generatePageObject: async function (_database, _page, _users) {

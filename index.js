@@ -11,11 +11,21 @@ const env_users_path = process.env.USERS_PATH
 const attr = require("./tools/attributes")
 const utils = require("./tools/utils")
 
+const debug = process.env.DEBUG
+
+var n_api
 // Authenticate Notion
-const n_api = new Client({
-  auth: process.env.NOTION_KEY,
-  logLevel: LogLevel.WARN,
-})
+if (debug) {
+  n_api = new Client({
+    auth: process.env.NOTION_KEY,
+    logLevel: LogLevel.DEBUG,
+  })
+} else {
+  n_api = new Client({
+    auth: process.env.NOTION_KEY,
+    logLevel: LogLevel.WARN,
+  })
+}
 
 main()
 
@@ -55,7 +65,6 @@ function createPages (_users, _objects) {
     for (page of pages) {
       attr.generatePageObject(database, page, _users)
         .then(async (result) => {
-          // console.log(result)
           n_api.pages.create(result)
           await new Promise(resolve => setTimeout(resolve, 500));
         })
@@ -104,9 +113,8 @@ async function updatePages (_users, _objects) {
             page_id: page.id,
             properties: await (await attr.generateProperties(properties, _users)).properties
           }
-          console.log(data)
           n_api.pages.update(data)
-          // console.log("Updating page: " + page.id)
+          console.log("Updating page: " + page.id)
           await new Promise(resolve => setTimeout(resolve, 500));
         }
       }).catch(error => {

@@ -4,7 +4,8 @@ dotenv.config()
 
 
 const env_mode = process.env.MODE
-const env_config_path = process.env.CONFIG_PATH
+const env_pages_path = process.env.PAGES_PATH
+const env_delete_path = process.env.DELETE_PATH
 const env_users_path = process.env.USERS_PATH
 
 const attr = require("./tools/attributes")
@@ -14,26 +15,31 @@ const n_api = require("./tools/notion-api")
 // Authenticate Notion
 n_api.auth(process.env.NOTION_KEY, "DEBUG")
 
-// Load configuration files
-loadConfigs()
-  .then(({ users, objects }) => {
-    // Run under specified MODE.
-    console.log("Running under " + env_mode + " mode.")
-    switch (env_mode) {
-      case ("create"):
-        createPages(users, objects)
-        break;
-      case ("delete"):
-        deletePages(objects)
-        break;
-      case ("update"):
-        updatePages(users, objects)
-        break;
-      default:
-        console.log("Unrecognized MODE.")
-        break;
-    }
-  })
+main()
+
+async function main () {
+  // Run under specified MODE.
+  console.log("Running under " + env_mode + " mode.")
+  switch (env_mode) {
+    case ("create"):
+      users = await utils.load_config(env_users_path)
+      console.log("File user.json loaded.")
+      pages = await utils.load_config(env_pages_path)
+      console.log("File pages.json loaded.")
+      createPages(users, pages)
+      break;
+    case ("delete"):
+      deletePages(deletions)
+      break;
+    case ("update"):
+      updatePages(pages)
+      break;
+    default:
+      console.log("Unrecognized MODE.")
+      break;
+  }
+}
+
 
 function createPages (users, objects) {
   for (obj of objects) {
@@ -50,20 +56,10 @@ function createPages (users, objects) {
   }
 }
 
-function deletePages (objects) {
-
+function deletePages (deletions) {
+  console.log(deletions)
 }
 
 function updatePages (users, objects) {
 
-}
-
-async function loadConfigs () {
-  users = await utils.load_config(env_users_path)
-  console.log("File user.json loaded.")
-
-  objects = await utils.load_config(env_config_path)
-  console.log("File pages.json loaded.")
-
-  return { users, objects }
 }

@@ -36,9 +36,11 @@ async function main () {
       deletePages(deletion)
       break;
     case ("update"):
+      users = await utils.load_config(env_users_path)
+      console.log("File user.json loaded.")
       objects = await utils.load_config(env_updates_path)
       console.log("File updates.json loaded.")
-      updatePages(objects)
+      updatePages(users, objects)
       break;
     default:
       console.log("Unrecognized MODE.")
@@ -61,9 +63,9 @@ function createPages (_users, _objects) {
   }
 }
 
-async function deletePages (_deletion) {
-  let databases = _deletion.databases
-  let filter = _deletion.filter
+async function deletePages (_objects) {
+  let databases = _objects.databases
+  let filter = _objects.filter
   for (db of databases) {
     n_api.databases.query({
       database_id: db.id,
@@ -87,6 +89,31 @@ async function deletePages (_deletion) {
   }
 }
 
-function updatePages (_objects) {
-
+async function updatePages (_users, _objects) {
+  let databases = _objects.databases
+  let filter = _objects.filter
+  let properties = _objects.properties
+  for (db of databases) {
+    n_api.databases.query({
+      database_id: db.id,
+      filter: filter
+    })
+      .then(async (result) => {
+        for (page of result.results) {
+          let data = {
+            page_id: page.id,
+            properties: await (await attr.generateProperties(properties, _users)).properties
+          }
+          console.log(data)
+          n_api.pages.update(data)
+          // console.log("Updating page: " + page.id)
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }).catch(error => {
+        console.log(error.message)
+        process.exit(1);
+      })
+    console.log("Going through DB: " + db.id)
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
 }

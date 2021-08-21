@@ -133,7 +133,6 @@ module.exports = {
           break;
         default:
           console.log(value.type, " is unsupported.")
-          // accum.properties[key] = { value, type: typeof value }
           break;
       }
       return accum

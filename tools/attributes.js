@@ -34,10 +34,10 @@ function getDue (dueTime) {
 
     // Require dueTime to be in format 'DD, HH:mm'
     dt_str = target_year + "/" + target_month + "/" + dueTime
-    schedule = moment(dt_str, "YYYY/MM/DD, HH:mm").subtract({ hours: utcoffset }).utcOffset(utcoffset)
+    schedule = moment(dt_str, "YYYY/MM/DD, HH:mm").utcOffset(utcoffset)
   } else {
     // TODO: catch invalid dueTime (ex. "33:33")
-    time = moment(dueTime, "HH:mm").subtract({ hours: utcoffset }).utcOffset(utcoffset)
+    time = moment(dueTime, "HH:mm").utcOffset(utcoffset)
     mode_upper = mode.toUpperCase()
     //  - Next occurring day of week (including today): 'N', 'M', 'T', 'W', 'R', 'F', 'S'
     if (mode_upper.substr(0, 3) == 'SUN')
@@ -107,6 +107,40 @@ function getTags (tag_names) {
 }
 
 module.exports = {
+  generateProperties: async function (_properties_config) {
+    const obj = await Object.entries(_properties_config).reduce(async (accumP, [key, value]) => {
+      const accum = await accumP;
+      switch (value.type) {
+        case "title":
+          // accum.properties[key] = { "title": [{ "text": { "content": value.data } }] }
+          break
+        case "date":
+          if (value.data)
+            accum.properties[key] = { "date": { "start": getDue(value.data) } }
+          else
+            accum.properties[key] = { "date": null }
+          break
+        case "select":
+          // accum.properties[key] = { "select": { "name": value.data } }
+          break
+        case "multi_select":
+          // accum.properties[key] = { "multi_select": getTags(value.data) }
+          break
+        case "people":
+          // accum.properties[key] = { "people": await getOwnerIDs(value.data, _users) }
+          break
+        case "number":
+          // accum.properties[key] = { "number": parseInt(value.data) }
+          break;
+        default:
+          console.log(value.type, " is unsupported.")
+          break;
+      }
+      return accum
+    }, Promise.resolve({ parent: {}, properties: {} }))
+
+    return obj
+  },
   generatePageObject: async function (_database, _page, _users) {
 
     const obj = await Object.entries(_page).reduce(async (accumP, [key, value]) => {

@@ -134,7 +134,10 @@ module.exports = {
           }
           break
         case "select":
-          accum.properties[key] = { "select": { "name": value.data } }
+          if (!value.data)
+            accum.properties[key] = { "select": { "name": value.data } }
+          else
+            accum.properties[key] = { "select": null }
           break
         case "multi_select":
           accum.properties[key] = { "multi_select": getTags(value.data) }

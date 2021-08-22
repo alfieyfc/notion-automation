@@ -1,5 +1,4 @@
 const mode = process.env.SCHEDULE_MODE
-const utcoffset = parseInt(process.env.SCHEDULE_UTC_OFFSET)
 
 const moment = require("moment")
 
@@ -34,10 +33,10 @@ function getDue (dueTime) {
 
     // Require dueTime to be in format 'DD, HH:mm'
     dt_str = target_year + "/" + target_month + "/" + dueTime
-    schedule = moment(dt_str, "YYYY/MM/DD, HH:mm").utcOffset(utcoffset)
+    schedule = moment(dt_str, "YYYY/MM/DD, HH:mm")
   } else {
     // TODO: catch invalid dueTime (ex. "33:33")
-    time = moment(dueTime, "HH:mm").utcOffset(utcoffset)
+    time = moment(dueTime, "HH:mm")
     mode_upper = mode.toUpperCase()
     //  - Next occurring day of week (including today): 'N', 'M', 'T', 'W', 'R', 'F', 'S'
     if (mode_upper.substr(0, 3) == 'SUN')
@@ -107,7 +106,7 @@ function getTags (tag_names) {
 }
 
 function getDateToday () {
-  return moment().utcOffset(8).startOf('day').format("YYYY-MM-DD")
+  return moment().startOf('day').format("YYYY-MM-DD")
 }
 
 module.exports = {
@@ -134,7 +133,7 @@ module.exports = {
           }
           break
         case "select":
-          if (!value.data)
+          if (value.data)
             accum.properties[key] = { "select": { "name": value.data } }
           else
             accum.properties[key] = { "select": null }
@@ -154,6 +153,7 @@ module.exports = {
       }
       return accum
     }, Promise.resolve({ properties: {} }))
+    // console.log(obj)
     return obj
   },
   generatePageObject: async function (_database, _page, _users) {

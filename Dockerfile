@@ -1,5 +1,6 @@
 
 FROM node:lts-alpine
+RUN apk add tzdata
 RUN mkdir -p /myapp/local/ && cd /myapp/
 WORKDIR /myapp/
 COPY package.json /myapp/package.json

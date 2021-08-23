@@ -34,16 +34,20 @@ function getDue (dueTime) {
     // Require dueTime to be in format 'DD, HH:mm'
     dt_str = target_year + "/" + target_month + "/" + dueTime
     schedule = moment(dt_str, "YYYY/MM/DD, HH:mm")
-  } else {
+  }
+  else if (mode == 'Weekly') {
     // TODO: catch invalid dueTime (ex. "33:33")
-    time = moment(dueTime, "HH:mm")
-    mode_upper = mode.toUpperCase()
+    dueTimeParsed = dueTime.split(',')
+    time = moment(dueTimeParsed[1], "HH:mm")
+
+    dayOfWeek = dueTimeParsed[0].toUpperCase()
     //  - Next occurring day of week (including today): 'N', 'M', 'T', 'W', 'R', 'F', 'S'
-    if (mode_upper.substr(0, 3) == 'SUN')
-      mode_upper = 'N'
-    if (mode_upper.substr(0, 3) == 'THU')
-      mode_upper = 'R'
-    switch (mode_upper.charAt(0)) {
+    if (dayOfWeek.substr(0, 3) == 'SUN')
+      dayOfWeek = 'N'
+    if (dayOfWeek.substr(0, 3) == 'THU')
+      dayOfWeek = 'R'
+
+    switch (dayOfWeek.charAt(0)) {
       case 'N':
         if (moment().weekday() > 0)
           schedule = time.day(7)
@@ -87,9 +91,16 @@ function getDue (dueTime) {
           schedule = time.day(6)
         break;
       default:
+        console.log("Unsupported weekday format. Should be \"<day_of_week>, HH:mm\", ex. \"Sunday, 11:30\"")
+        console.log("Setting due date to today.")
         schedule = time
         break;
     }
+  }
+  else {
+    console.log("Unsupported mode. Should be one of: Monthly, Weekly, Daily (default: Daily).")
+    console.log("Setting due date to today.")
+    return moment(dueTime, "HH:mm")
   }
   return schedule.format()
 }

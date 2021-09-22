@@ -100,7 +100,7 @@ async function deletePages (_objects) {
 
 async function updatePages (_users, _objects) {
   let databases = _objects.databases
-  let filter = _objects.filter
+  let filter = await attr.generateFilter(_objects.filter)
   let properties = _objects.properties
   for (db of databases) {
     n_api.databases.query({

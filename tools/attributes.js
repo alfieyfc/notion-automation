@@ -121,6 +121,34 @@ function getDateToday () {
 }
 
 module.exports = {
+  generateFilter: async function (_filters) {
+    const obj = await Object.entries(_filters).reduce(async (accumP, [key, value]) => {
+      const accum = await accumP;
+      for (filter of value) {
+        for (pKey of Object.keys(filter)) {
+          // TODO: switch all property types
+          switch (pKey) {
+            case 'date':
+              date_key = Object.keys(filter.date)[0]
+              // TODO: switch all date properties
+              switch (filter.date[date_key]) {
+                case 'today':
+                  filter.date[date_key] = moment().format('YYYY-MM-DD')
+                  break;
+                default:
+                  break;
+              }
+              break;
+            default:
+              break;
+          }
+        }
+      }
+      accum[key] = value
+      return accum
+    }, Promise.resolve({}))
+    return obj
+  },
   generateProperties: async function (_properties_config, _users) {
     const obj = await Object.entries(_properties_config).reduce(async (accumP, [key, value]) => {
       const accum = await accumP;
